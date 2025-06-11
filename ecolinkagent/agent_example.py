@@ -46,24 +46,13 @@ async def annotate_with_local_ontology(text, ontology_file="elmo.owl"):
     try:
         # Create adapter for the local ontology file
         adapter = get_adapter(f"pronto:{ontology_file}")
-        
-        # Check if the adapter supports text annotation
-        if not isinstance(adapter, TextAnnotatorInterface):
-            print(f"Adapter does not support text annotation")
-            return []
-        
-        # Perform annotation
-        annotations = list(adapter.annotate_text(text))
-        
+        results = adapter.basic_search(text)
+        labels = list(adapter.labels(results))
+
         # Display results
-        print(f"Found {len(annotations)} annotations:")
-        for annotation in annotations:
-            print(f"- Term: {annotation.object_id}")
-            print(f"  Label: {annotation.object_label}")
-            print(f"  Match: '{annotation.match_string}'")
-            print()
+        print(f"Found {len(labels)} annotations: {labels}")
         
-        return annotations
+        return labels
         
     except Exception as e:
         print(f"Error processing ontology: {e}")
