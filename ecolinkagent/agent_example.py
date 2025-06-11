@@ -75,7 +75,7 @@ async def search_ontology(ctx: RunContext[str], term: str, ontology: str, n: int
     Returns:
         A list of tuples, each containing an ontology ID and a label.
     """
-    adapter = get_adapter("ols:{ontology}")
+    adapter = get_adapter(f"ols:{ontology}")
     results = adapter.basic_search(term)
     labels = list(adapter.labels(results))
 
