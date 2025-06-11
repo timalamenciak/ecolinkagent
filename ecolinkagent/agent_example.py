@@ -27,11 +27,6 @@ annotate_agent = Agent(
 
 
 @annotate_agent.tool
-async def roulette_wheel(ctx: RunContext[str], square: int) -> str:  
-    """check if the square is a winner"""
-    return 'winner' if square == ctx.deps else 'loser'
-
-@annotate_agent.tool
 async def annotate_with_local_ontology(text, ontology_file="elmo.owl"):
     """
     Annotate text using a local ontology file with OAK.

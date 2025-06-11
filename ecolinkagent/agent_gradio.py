@@ -52,7 +52,7 @@ async def search_ontology(term: str, ontology: str, n: int, verbose: bool = Fals
     Returns:
         A list of tuples, each containing an ontology ID and a label.
     """
-    adapter = get_adapter("pronto:elmo.owl")
+    adapter = get_adapter("ols:{ontology}")
     results = adapter.basic_search(term)
     labels = list(adapter.labels(results))
 
@@ -60,76 +60,32 @@ async def search_ontology(term: str, ontology: str, n: int, verbose: bool = Fals
     print(f"## RESULTS: {labels}")
     return labels
 
-async def annotate_with_local_ontology(ctx: RunContext[str]):
+@annotate_agent.tool
+async def annotate_with_local_ontology(text, ontology_file="elmo.owl"):
     """
-    Get the classes and definitions from a local ontology file.
-
+    Annotate text using a local ontology file with OAK.
+    
     Args:
-        None
+        text (str): The text to annotate
+        ontology_file (str): Path to a local ontology file
     
     Returns:
-        dict: Dict of annotation results
+        list: List of annotation results
     """
-    ontology_file="elmo.owl"
     try:
         # Create adapter for the local ontology file
         adapter = get_adapter(f"pronto:{ontology_file}")
-        # adapter = get_adapter("sqlite:obo:envo")
-        
-        # Extract classes
-        # Create a dictionary to store class CURIEs, labels, and their definitions
-        results = {
-            'classes': [],
-            'curies': [],
-            'definitions': {}
-        }
-        # Get all entities (classes) in the ontology
-        all_entities = list(adapter.entities())
-        for entity_curie in all_entities:
-            # Get the label/name of the class
-            label = adapter.label(entity_curie)
-        
-            # Get the definition if available
-            definition = adapter.definition(entity_curie)
-        
-            # Store class information
-            class_info = {
-                'curie': entity_curie,
-                'label': label,
-                'definition': definition
-            }
-        
-            results['classes'].append(class_info)
-            results['curies'].append(entity_curie)
-        
-            if definition:
-                results['definitions'][entity_curie] = definition
-    
-        return results
+        results = adapter.basic_search(text)
+        labels = list(adapter.labels(results))
 
+        # Display results
+        print(f"Found {len(labels)} annotations: {labels}")
+        
+        return labels
         
     except Exception as e:
         print(f"Error processing ontology: {e}")
-        return [{"error": str(e)}]
-
-@annotate_agent.tool
-async def fetch_classes(ontology_file="elmo.owl"):
-    """Return a list of all classes and their definitions in an ontology, 
-    for use in annotation.
-
-    Args:
-        ontology_file - The file of the ontology to load.
-    Returns:
-        dict - a dictionary of terms and definitions.
-    """
-    
-    #with open(ontology_file, 'r', encoding='utf-8') as file:
-    #    ontology = file.read()
-    #g = rdflib.Graph()
-    #g.parse(data=ontology)
-    #classes = {}
-    #for s, p, o in g:
-        
+        return []        
 
 
 def process_message(message, history):
